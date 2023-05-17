@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Mars Rover</title>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+        
+        <style> 
+
+            .map-grid-class{
+                display:auto;
+                width:auto;
+                height:auto;
+                border:auto; 
+            }
+
+            .map-box-class {
+                height:auto;
+                width:auto;
+                line-height:auto;
+                border:auto  
+            }
+              
+            .map-cell-class{
+                display:inline-block;
+                width:auto;
+                height:auto;
+                box-sizing:auto;
+                text-align:center;
+                border:1pt solid black
+            }
+
+            .map-class {
+                display:auto;
+                height:40vw;
+                width:40vw;
+                margin:auto;
+                border:2px solid black; 
+            }
+
+            .space-class {
+                display:auto;
+                height:10px;
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <div>
+            <header>The Ultimate Mars Rover Game</header>
+            <p>
+                Welcome on Mars, you can choose the dimensions of the map and start your journey! 
+                If you die "!", then start adveture with the mapping button. <br>
+                Legend: Rover to move "R", Path to explore "o", Resources to collect "$", Obstacles to avoid "X". <br>
+                Movement: ArrowUp, ArrowDown, ArrowLeft, ArrowRight || Destruction: Space (The more you destroy, the more resources you lose!) <br>
+            </p>
+
+        </div>
+
+        <div>
+            <label> Width (xs): </label>
+            <input class="input-xs-class" id="input-xs-id" type="number" min="2" max="20" value="9">
+            <label> Height (ys): </label>
+            <input class="input-ys-class" id="input-ys-id" type="number" min="2" max="20" value="9">
+            <label> Start: </label> 
+            <button title="mapping-btn" class="mapping-btn-class" id="mapping-btn-id"> MAPPING </button>
+        </div>
+
+        <div class="space-class"></div> 
+
+        <div class="map-class" id="map-id"></div> 
+
+        <div class="space-class"></div> 
+
+        <div>
+            <label> State: </label>
+            <output class="state-class" id="state-id"></output>
+        </div>
+
+        <div>
+            <label> Score: </label>
+            <output class="score-class" id="score-id"></output>
+        </div>
+
+    </body>
+
+    <script>
+        const inputXs = document.querySelector("#input-xs-id");
+        const inputYs = document.querySelector("#input-ys-id");
+        const mapping = document.querySelector("#mapping-btn-id");
+
+        const map = document.querySelector("#map-id");
+
+        const state = document.querySelector("#state-id");
+        const score = document.querySelector("#score-id");
+
+        let currentState = "ALIVE"; // ALIVE or DEAD
+        let currentScore = 0;
+
+        state.value = currentState;
+        score.value = currentScore;
+
+        // initializing the map and the rover
+        let xs = Number(inputXs.value);
+        let ys = Number(inputXs.value);
+        let roverX = Math.floor(Math.random() * xs);
+        let roverY = Math.floor(Math.random() * ys);
+
+        console.log("InXs: " + inputXs.value + " & " + "InYs: " + inputYs.value);
+        console.log("MapXs: " + xs + " & " + "MapYs: " + ys);
+        console.log("RoverX: " + roverX + " & " + "RoverY: " + roverY);
+
+
+        // mapping values
+        const colorR = "Gray";
+        const colorO = "DarkOrange";
+        const colorX = "OrangeRed";
+        const colorS = "Gold";
+        const colorD = "Red"
+
+        const textR = "R";
+        const textO = "o";
+        const textX = "X";
+        const textS = "$";
+        const textD = "!"
+
+        const border = 1;
+
+        const setcell = (cell, id, text, color) => {
+            cell.id = id;
+            cell.textContent = text;
+            cell.style.backgroundColor = color;
+        }
+
+        const altercell = (cell, text, color) => {
+            cell.textContent = text;
+            cell.style.backgroundColor = color;
+        }
+
+        // function for mapping
+        const create = (rows, cols) => {
+            let grid = document.createElement("div");
+            grid.className = "map-grid-class";
+            grid.id = "map-grid-id";
+
+            console.log("map max width: " + map.clientWidth + " & " + "map max height: " + map.clientHeight);
+
+            for (x=0; x<rows; x++) {
+                let box = document.createElement("div");
+                box.className = "map-box-class";
+                box.id = "map-box-id-" + x;
+                for (y=0; y<cols; y++) {
+                    let cell = document.createElement("div"); 
+                    cell.className = "map-cell-class";
+                    if(x === roverX && y === roverY) {
+                        setcell(cell, "map-cell-id-ROVER", textR, colorR)
+                    } else {
+                        let type = Math.floor(Math.random() * 10);
+                        let text = type < 1 ? textS : type < 4 ? textX : textO;
+                        let color = type < 1 ? colorS : type < 4 ? colorX : colorO;
+                        setcell(cell, "map-cell-id-" + x + "-" + y, text, color);
+                    }
+                    cell.style.setProperty("width", (map.clientWidth)/(cols) + "px");
+                    box.appendChild(cell);
+                }
+                box.style.setProperty("line-height", (map.clientHeight - border*(rows*2))/(rows) + "px");
+                grid.appendChild(box);
+            }
+            return grid;
+        }
+
+
+        // creating the map
+        let grid = create(xs, ys);
+        map.appendChild(grid);
+
+
+        // function for new mapping
+        const start = () => {
+            xs = inputXs.value;
+            ys = inputYs.value;
+            roverX = Math.floor(Math.random() * xs);
+            roverY = Math.floor(Math.random() * ys);
+
+            console.log("MapXs: " + xs + " & " + "MapYs: " + ys);
+            console.log("RoverX: " + roverX + " & " + "RoverY: " + roverY);
+
+            map.querySelector("#map-grid-id")?.remove();
+            grid = create(xs, ys);
+            map.appendChild(grid);
+
+            currentState = "ALIVE";
+            currentScore = 0;
+
+            state.value = currentState;
+            score.value = currentScore;
+        }
+
+
+        // new mapping button
+        mapping.addEventListener("click", start);
+
+        // console.log(grid.querySelector("#map-cell-id-ROVER").textContent);
+        // console.log(grid.querySelector("#map-cell-id-2-2").textContent);
+
+
+        // moving
+        const moverover = (cell) => {
+            if(cell.textContent === textO) {
+                setcell(cell, "map-cell-id-ROVER", textR, colorR);
+                currentState = "ALIVE";
+                currentScore += 0;
+            } else if(cell.textContent === textS) {
+                setcell(cell, "map-cell-id-ROVER", textR, colorR);
+                currentState = "ALIVE";
+                currentScore += 1;
+            } else {
+                setcell(cell, "map-cell-id-ROVER", textD, colorD);
+                currentState = "DEAD";
+                currentScore += 0;
+            }
+            state.value = currentState;
+            score.value = currentScore;
+        }
+
+        const moveup = () => {
+            let cell = grid.querySelector("#map-cell-id-ROVER");
+            setcell(cell, "map-cell-id-" + roverX + "-" + roverY, textO, colorO);
+            roverX = (roverX-1) >= 0 ? (roverX-1) : (xs-1);
+            cell = grid.querySelector("#map-cell-id-" + roverX + "-" + roverY);
+            moverover(cell);
+        }
+
+        const movedown = () => {
+            let cell = grid.querySelector("#map-cell-id-ROVER");
+            setcell(cell, "map-cell-id-" + roverX + "-" + roverY, textO, colorO);
+            roverX = (roverX+1) <= (xs-1) ? (roverX+1) : 0;
+            cell = grid.querySelector("#map-cell-id-" + roverX + "-" + roverY);
+            moverover(cell);
+        }
+
+        const moveleft = () => {
+            let cell = grid.querySelector("#map-cell-id-ROVER");
+            setcell(cell, "map-cell-id-" + roverX + "-" + roverY, textO, colorO);
+            roverY = (roverY-1) >= 0 ? (roverY-1) : (ys-1);
+            cell = grid.querySelector("#map-cell-id-" + roverX + "-" + roverY);
+            moverover(cell);
+        }
+
+        const moveright = () => {
+            let cell = grid.querySelector("#map-cell-id-ROVER");
+            setcell(cell, "map-cell-id-" + roverX + "-" + roverY, textO, colorO);
+            roverY = (roverY+1) <= (ys-1) ? (roverY+1) : 0;
+            cell = grid.querySelector("#map-cell-id-" + roverX + "-" + roverY);
+            moverover(cell);
+        }
+
+        const destroy = () => {
+            // destroy right
+            let cell;
+            cell = (roverY+1) <= (ys-1)
+                ? grid.querySelector("#map-cell-id-" + roverX + "-" + (roverY+1))
+                : grid.querySelector("#map-cell-id-" + roverX + "-" + 0);
+            if(cell.textContent === textX) { altercell(cell, textO, colorO); currentScore -= 1; }
+            // destroy left
+            cell = (roverY-1) >= 0 
+                ? grid.querySelector("#map-cell-id-" + roverX + "-" + (roverY-1))
+                : grid.querySelector("#map-cell-id-" + roverX + "-" + (ys-1));
+            if(cell.textContent === textX) { altercell(cell, textO, colorO); currentScore -= 1; }
+            // destroy down
+            cell = (roverX+1) <= (xs-1) 
+                ? grid.querySelector("#map-cell-id-" + (roverX+1) + "-" + roverY)
+                : grid.querySelector("#map-cell-id-" + 0 + "-" + roverY);
+            if(cell.textContent === textX) { altercell(cell, textO, colorO); currentScore -= 1; }
+            // destroy up
+            cell = (roverX-1) >= 0
+                ? grid.querySelector("#map-cell-id-" + (roverX-1) + "-" + roverY)
+                : grid.querySelector("#map-cell-id-" + (xs-1) + "-" + roverY);
+            if(cell.textContent === textX) { altercell(cell, textO, colorO); currentScore -= 1; }
+            score.value = currentScore;
+        }
+
+        document.onkeyup = (e) => {
+            if(currentState === "ALIVE") {
+                e.stopImmediatePropagation();
+                if (e.key === 'ArrowUp') {
+                    console.log('key up arrow pressed');
+                    moveup();
+                } else if (e.key === 'ArrowDown') {
+                    console.log('key down arrow pressed');
+                    movedown();
+                } else if (e.key === 'ArrowLeft') {
+                    console.log('key left arrow pressed');
+                    moveleft();
+                } else if (e.key === 'ArrowRight') {
+                    console.log('key right arrow pressed');
+                    moveright();
+                } else if (e.key === 'Space' || e.keyCode == 32){
+                    console.log('key space pressed');
+                    destroy();
+                } else {
+                    console.log('other key pressed');
+                }
+            }
+        }
+
+        // nmapping.addEventListener("click", newmap);
+        document.addEventListener('keyup', document.onkeyup);
+
+    </script>
+
+</html>
