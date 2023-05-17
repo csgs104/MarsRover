@@ -105,7 +105,6 @@
         let roverX = Math.floor(Math.random() * xs);
         let roverY = Math.floor(Math.random() * ys);
 
-        console.log("InXs: " + inputXs.value + " & " + "InYs: " + inputYs.value);
         console.log("MapXs: " + xs + " & " + "MapYs: " + ys);
         console.log("RoverX: " + roverX + " & " + "RoverY: " + roverY);
 
@@ -146,7 +145,7 @@
             cell.style.backgroundColor = color;
         }
 
-        // mapping function: given rows and cols, returns a grid
+        // mapping function: given rows and cols, returns a grid (map with rover)
         const create = (rows, cols) => {
             let grid = document.createElement("div");
             grid.className = "map-grid-class";
@@ -179,17 +178,22 @@
         }
 
 
-        // creating the map
+        // creating the map with rover
         let grid = create(xs, ys);
         map.appendChild(grid);
 
 
-        // function for new mapping
+        // new mapping function
         const start = () => {
             xs = inputXs.value;
             ys = inputYs.value;
             roverX = Math.floor(Math.random() * xs);
             roverY = Math.floor(Math.random() * ys);
+
+            currentState = "ALIVE";
+            currentScore = 0;
+            state.value = currentState;
+            score.value = currentScore;
 
             console.log("MapXs: " + xs + " & " + "MapYs: " + ys);
             console.log("RoverX: " + roverX + " & " + "RoverY: " + roverY);
@@ -197,12 +201,6 @@
             map.querySelector("#map-grid-id")?.remove();
             grid = create(xs, ys);
             map.appendChild(grid);
-
-            currentState = "ALIVE";
-            currentScore = 0;
-
-            state.value = currentState;
-            score.value = currentScore;
         }
 
 
